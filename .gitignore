@@ -1,0 +1,6 @@
+.token
+.paired
+counter.json
+icons/
+node_modules/
+.DS_Store
