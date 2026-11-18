@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reemployed">
+<meta name="theme-color" content="#0b0b12">
+<title>iPhone Reemployment</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+  :root { --glass: rgba(255,255,255,.10); --glass-hi: rgba(255,255,255,.2); --edge: rgba(255,255,255,.22);
+    --ink: #fff; --ink-2: rgba(255,255,255,.62); --green: #30d158; --gap: 8px; }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+  html, body { height: 100%; background: #0b0b12; color: var(--ink); overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif; }
+
+  #bg { position: fixed; inset: -10%; z-index: 0; }
+  #bg .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .75; animation: drift 24s ease-in-out infinite alternate; }
+  #bg .b1 { width: 55vw; height: 55vw; background: #5b4bff; left: 0; top: 5%; }
+  #bg .b2 { width: 45vw; height: 45vw; background: #00b3c7; right: 0; top: 30%; animation-delay: -8s; }
+  #bg .b3 { width: 40vw; height: 40vw; background: #ff5a8a; left: 35%; bottom: -5%; animation-delay: -16s; }
+  @keyframes drift { to { transform: translate(6vw, -4vh) scale(1.15); } }
+  #art-bg { position: fixed; inset: -20%; z-index: 0; background-size: cover; background-position: center;
+    filter: blur(50px) saturate(1.6) brightness(.7); opacity: 0; transition: opacity 1.2s; }
+  #art-bg.on { opacity: 1; }
+
+  .deck { position: relative; z-index: 1; height: 100%; display: grid; gap: var(--gap);
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: 1.35fr 1fr 1fr; }
+
+  .glass { background: var(--glass); border: 1px solid var(--edge); border-radius: 22px;
+    -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 24px rgba(0,0,0,.18); }
+  .tile { padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden; }
+  .label { font-size: 11px; color: var(--ink-2); display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; }
+  .label i { font-size: 13px; }
+  .big { font-size: 30px; font-weight: 600; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .sub { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 4px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: #fff; border-radius: 4px; transition: width 1s linear; }
+
+  /* now playing */
+  #np { grid-column: span 3; flex-direction: row; align-items: center; gap: 12px; }
+  #np .art { width: 76px; height: 76px; flex: none; border-radius: 14px; background: rgba(255,255,255,.12) center/cover;
+    display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--ink-2); box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+  #np .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  #np .title { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #np .bar { margin-top: 3px; }
+  .controls { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+  .ctl { width: 30px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 9px; font-size: 19px; transition: transform .1s, background .15s; }
+  .ctl:active { transform: scale(.88); background: var(--glass-hi); }
+  .ctl.main { font-size: 22px; }
+  .vol { flex: 1; display: flex; align-items: center; gap: 5px; margin-left: 6px; color: var(--ink-2); font-size: 13px; min-width: 0; }
+  input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 4px; border-radius: 4px; background: rgba(255,255,255,.22); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+
+  /* clock */
+  #clock { grid-column: span 2; }
+  #clock .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  #wx { text-align: right; }
+  #wx .t { font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+  #wx .t i { font-size: 22px; }
+
+  /* mac */
+  #mac { gap: 5px; justify-content: center; }
+  .stat { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); }
+  .stat .bar { height: 5px; } .stat .bar > div { transition: width .6s ease; }
+  #dot { width: 6px; height: 6px; border-radius: 50%; background: #ff453a; flex: none; }
+  #dot.live { background: var(--green); }
+  #host { overflow: hidden; text-overflow: ellipsis; }
+
+  /* app switcher */
+  #apps { grid-column: span 4; justify-content: center; gap: 7px; }
+  #app-row { display: flex; gap: 12px; align-items: center; min-height: 52px; overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scrollbar-width: none; padding: 3px 2px; margin: -3px -2px;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  #app-row::-webkit-scrollbar { display: none; }
+  .app { scroll-snap-align: start; position: relative; }
+  .app.front::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #fff; }
+  .app { width: 46px; height: 46px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.14) center/86% no-repeat; font-size: 18px; font-weight: 600; transition: transform .12s; }
+  .app:active { transform: scale(.86); }
+  .app.hit { animation: pop .35s; }
+  @keyframes pop { 50% { transform: scale(1.15); } }
+
+  /* counter */
+  #mw { grid-column: span 2; justify-content: center; gap: 2px; }
+  #mw .big { font-size: 26px; }
+  #mw:active { background: var(--glass-hi); }
+
+  /* buttons */
+  .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-size: 12px; color: var(--ink); transition: transform .12s ease, background .2s ease; border-radius: 20px; }
+  .btn i { font-size: 28px; }
+  .btn:active, .btn.pressed { transform: scale(.94); background: var(--glass-hi); }
+  .btn.fail { animation: shake .3s; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+  @media (orientation: portrait) {
+    .deck { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 1.2fr .9fr 1fr .9fr 1fr 1fr; }
+    #np { grid-column: span 3; } #clock { grid-column: span 2; } #apps { grid-column: span 3; } #mw { grid-column: span 3; }
+  }
+</style>
+</head>
+<body>
+<div id="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div id="art-bg"></div>
+
+<main class="deck" id="deck">
+  <section class="glass tile" id="np">
+    <div class="art" id="art"><i class="ti ti-music"></i></div>
+    <div class="meta">
+      <div class="label" id="np-app"><i class="ti ti-player-stop"></i> Nothing playing</div>
+      <div class="title" id="np-title">Start Spotify or Music</div>
+      <div class="sub" id="np-artist">&nbsp;</div>
+      <div class="bar"><div id="np-bar"></div></div>
+      <div class="controls">
+        <div class="ctl" data-media="prev"><i class="ti ti-player-skip-back"></i></div>
+        <div class="ctl main" data-media="playpause"><i class="ti ti-player-play" id="pp"></i></div>
+        <div class="ctl" data-media="next"><i class="ti ti-player-skip-forward"></i></div>
+        <div class="vol"><i class="ti ti-volume" id="vol-ic"></i><input type="range" min="0" max="100" step="1" id="vol"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="glass tile" id="clock">
+    <div class="label" id="date">—</div>
+    <div class="row">
+      <div class="big" id="time">--:--</div>
+      <div id="wx"><div class="t"><i class="ti ti-cloud"></i><span>--°</span></div><div class="sub">&nbsp;</div></div>
+    </div>
+  </section>
+
+  <section class="glass tile" id="mac">
+    <div class="label"><span id="dot"></span><span id="host">Mac</span></div>
+    <div class="stat"><span>CPU</span><div class="bar"><div id="cpu"></div></div></div>
+    <div class="stat"><span>RAM</span><div class="bar"><div id="ram"></div></div></div>
+    <div class="sub" id="batt">&nbsp;</div>
+  </section>
+
+  <section class="glass tile" id="apps">
+    <div class="label"><i class="ti ti-apps"></i> Open apps · tap to jump</div>
+    <div id="app-row"></div>
+  </section>
+
+  <section class="glass tile" id="mw">
+    <div class="label" id="mw-label"><i class="ti ti-chart-line"></i> Counter</div>
+    <div class="big" id="mw-total">—</div>
+    <div class="sub" id="mw-sub">tap to update</div>
+  </section>
+  <!-- bottom buttons are inserted here -->
+</main>
+
+<script>
+const T = new URLSearchParams(location.search).get("t") || "";
+const $ = (id) => document.getElementById(id);
+const post = (u, body) => fetch(u + (u.includes("?") ? "&" : "?") + "t=" + T, { method: "POST", body });
+let S = {};
+let counter = { label: "Counter", icon: "chart-line", sub: "tap to update" };
+
+const WX = { 0:"sun",1:"sun",2:"cloud-sun",3:"cloud",45:"mist",48:"mist",51:"cloud-drizzle",53:"cloud-drizzle",55:"cloud-drizzle",
+  61:"cloud-rain",63:"cloud-rain",65:"cloud-storm",71:"snowflake",73:"snowflake",75:"snowflake",80:"cloud-rain",81:"cloud-rain",82:"cloud-storm",95:"bolt",96:"bolt",99:"bolt" };
+const fmt = (s) => { s = Math.max(0, Math.floor(s)); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+const nf = (n) => Number(n).toLocaleString("da-DK");
+
+async function init() {
+  const cfg = await fetch("/config?t=" + T).then(r => r.json());
+  counter = cfg.counter || counter;
+  $("mw-label").innerHTML = `<i class="ti ti-${counter.icon}"></i> ${counter.label}`;
+  $("mw-sub").textContent = counter.sub;
+  for (const b of cfg.buttons) {
+    const el = document.createElement("button");
+    el.className = "glass btn";
+    el.innerHTML = `<i class="ti ti-${b.icon}"></i><span>${b.label}</span>`;
+    el.addEventListener("touchstart", () => el.classList.add("pressed"), { passive: true });
+    el.addEventListener("touchend", () => setTimeout(() => el.classList.remove("pressed"), 120));
+    el.addEventListener("click", async () => {
+      try { const r = await post(`/action/${b.id}`); if (!r.ok) throw 0; }
+      catch { el.classList.remove("fail"); void el.offsetWidth; el.classList.add("fail"); }
+    });
+    $("deck").appendChild(el);
+  }
+  document.querySelectorAll("[data-media]").forEach((c) => c.addEventListener("click", () => post("/media/" + c.dataset.media)));
+  const vol = $("vol");
+  vol.addEventListener("input", () => { dragging = true; });
+  vol.addEventListener("change", () => { post("/volume/" + vol.value); setTimeout(() => (dragging = false), 600); });
+  $("mw").addEventListener("click", () => {
+    const v = prompt(counter.label + " — new number:", S.counter?.total ?? "");
+    if (v) post("/counter", v);
+  });
+  connect();
+}
+let dragging = false;
+
+function connect() {
+  const es = new EventSource("/events?t=" + T);
+  es.onmessage = (e) => { S = JSON.parse(e.data); $("dot").classList.add("live"); render(); };
+  es.onerror = () => $("dot").classList.remove("live");
+}
+
+let lastArt, lastApps = "";
+function render() {
+  $("host").textContent = (S.host || "Mac").split("-").slice(0, 2).join(" ");
+  $("cpu").style.width = (S.cpu || 0) + "%";
+  $("ram").style.width = S.ramTotal ? Math.round(100 * S.ramUsed / S.ramTotal) + "%" : "0%";
+  $("batt").textContent = S.battery != null ? `${S.charging ? "⚡ " : "🔋 "}${S.battery}%` : `CPU ${S.cpu}%`;
+
+  if (!dragging) $("vol").value = S.muted ? 0 : (S.volume ?? 50);
+  $("vol-ic").className = "ti ti-" + (S.muted || S.volume === 0 ? "volume-off" : S.volume < 40 ? "volume-2" : "volume");
+
+  const m = S.media;
+  if (m) {
+    $("np-app").innerHTML = `<i class="ti ti-brand-${m.app === "Spotify" ? "spotify" : "apple"}"></i> ${m.app}`;
+    $("np-title").textContent = m.title || "—";
+    $("np-artist").textContent = m.artist || "";
+    mediaPos = m.position; mediaAt = Date.now();
+    $("pp").className = "ti ti-" + (m.playing ? "player-pause" : "player-play");
+  } else {
+    $("np-app").innerHTML = '<i class="ti ti-player-stop"></i> Nothing playing';
+    $("np-title").textContent = "Start Spotify or Music";
+    $("np-artist").innerHTML = "&nbsp;"; $("np-bar").style.width = "0%"; $("pp").className = "ti ti-player-play";
+  }
+  const art = m?.artwork ? (m.artwork.startsWith("/") ? m.artwork + "?t=" + T : m.artwork) : null;
+  if (art !== lastArt) {
+    lastArt = art;
+    $("art").style.backgroundImage = art ? `url("${art}")` : "";
+    $("art").innerHTML = art ? "" : '<i class="ti ti-music"></i>';
+    $("art-bg").style.backgroundImage = art ? `url("${art}")` : "";
+    $("art-bg").classList.toggle("on", !!art);
+  }
+
+  if (S.weather) {
+    $("wx").innerHTML = `<div class="t"><i class="ti ti-${WX[S.weather.code] || "cloud"}"></i><span>${S.weather.temp}°</span></div><div class="sub">${S.weather.hi}° / ${S.weather.lo}°</div>`;
+  }
+
+  const key = (S.apps || []).map(a => a.id + (a.front ? "*" : "")).join();
+  if (key !== lastApps) {
+    lastApps = key;
+    const row = $("app-row"); const keep = row.scrollLeft; row.innerHTML = "";
+    for (const a of S.apps || []) {
+      const el = document.createElement("div");
+      el.className = "app" + (a.front ? " front" : ""); el.title = a.name;
+      el.textContent = a.name[0];
+      const img = new Image();
+      img.onload = () => { el.style.backgroundImage = `url("${img.src}")`; el.style.backgroundColor = "transparent"; el.textContent = ""; };
+      img.src = `/icon/${a.icon}?t=${T}`;
+      el.addEventListener("click", () => { el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); post("/switch?app=" + encodeURIComponent(a.id)); });
+      row.appendChild(el);
+    }
+    row.scrollLeft = keep;
+  }
+  // retry icons that weren't converted yet
+  document.querySelectorAll(".app").forEach((el, i) => {
+    if (el.textContent && S.apps?.[i] && (el.dataset.tries = (+el.dataset.tries || 0) + 1) <= 6) { const img = new Image(); img.onload = () => { el.style.backgroundImage = `url("${img.src}")`; el.style.backgroundColor = "transparent"; el.textContent = ""; }; img.src = `/icon/${S.apps[i].icon}?t=${T}&r=${Date.now() >> 12}`; }
+  });
+
+  if (S.counter?.total) $("mw-total").textContent = nf(S.counter.total);
+}
+
+let mediaPos = 0, mediaAt = 0;
+function frame() {
+  const now = new Date();
+  $("time").textContent = now.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  $("date").textContent = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const m = S.media;
+  if (m && m.duration) {
+    const pos = m.playing ? mediaPos + (Date.now() - mediaAt) / 1000 : mediaPos;
+    $("np-bar").style.width = Math.min(100, 100 * pos / m.duration) + "%";
+  }
+}
+setInterval(frame, 1000); frame();
+document.addEventListener("gesturestart", (e) => e.preventDefault());
+init();
+</script>
+</body>
+</html>
